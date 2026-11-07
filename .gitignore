@@ -1,0 +1,36 @@
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# dữ liệu và kết quả chạy
+dataset/
+reports/
+/result/
+.cache/
+
+# mọi file môi trường/khoá (kể cả .env.local.bak, .env.openrouter.bak...); chỉ giữ file mẫu
+.env
+.env.*
+*.env
+!.env.example
+
+# build và tạm
+*.egg-info/
+build/
+dist/
+.coverage
+htmlcov/
+*.log
+
+# IDE và hệ điều hành
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# file ảnh Docker xuất ra để chuyển server
+*.tar
+*.tar.gz

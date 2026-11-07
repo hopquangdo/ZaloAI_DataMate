@@ -1,0 +1,68 @@
+# Cụm từ ghép trong tên cột: được nối thành một từ trước khi phân tích, để "hàng" trong
+# "khách hàng" không bị hiểu là "hàng hoá", "sinh" trong "phát sinh" không thành "ngày sinh"...
+# Viết có dấu, chữ thường, mỗi dòng một cụm. Cụm dài được ghép trước.
+nhà cung cấp
+chi tiết hàng
+hoá đơn điện tử
+khách hàng
+đơn hàng
+giao hàng
+giao dịch
+hàng hoá
+sản phẩm
+mặt hàng
+hoá đơn
+số lượng
+thành tiền
+trị giá
+giá trị
+đơn giá
+giá vốn
+trạng thái
+tình trạng
+thời gian
+ngày giờ
+nhân viên
+người bán
+thanh toán
+phương thức
+hình thức
+chứng từ
+đơn vị
+quy đổi
+cơ bản
+áp dụng
+niêm yết
+họ tên
+tổng tiền
+còn lại
+chưa trả
+phải trả
+phải thu
+đã trả
+phát sinh
+sử dụng
+tiến độ
+chiết khấu
+khuyến mãi
+phiếu nhập
+phiếu thu
+phiếu trả
+nhập kho
+loại hình
+đối tượng
+đối tác
+bên mua
+phân loại
+danh mục
+ghi chú
+hoạt chất
+thành phần
+kê đơn
+khai trương
+nhận việc
+thôi việc
+vào làm
+đăng ký
+số tiền
+t tiền

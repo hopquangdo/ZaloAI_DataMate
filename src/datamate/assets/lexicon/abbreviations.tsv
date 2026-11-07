@@ -1,0 +1,26 @@
+# Viết tắt trong câu hỏi → dạng đầy đủ. Rút từ câu hỏi train + public_test (scripts/mine_abbreviations.py).
+# Chỉ giữ viết tắt KHÔNG mơ hồ. Đã bỏ: "k" (50k = năm mươi nghìn), "z" (cũng là cỡ / ký hiệu),
+# "duoc" (cũng là "dược"), "nhieu", "nhat" (từ không dấu bình thường), "dt" (doanh thu / điện thoại).
+# viết tắt	dạng đầy đủ	số lần thấy (tham khảo)
+dthu	doanh thu	311
+bnhiu	bao nhiêu	203
+bnhieu	bao nhiêu
+bn	bao nhiêu	80
+th	tháng	78
+nhiu	nhiều	61
+hnay	hôm nay	51
+dc	được	39
+đc	được
+hqua	hôm qua	25
+trc	trước	23
+vs	với	23
+sp	sản phẩm	15
+ko	không	15
+total	tổng	11
+mik	mình	10
+revenue	doanh thu	6
+trog	trong	4
+kh	khách hàng
+nv	nhân viên
+sl	số lượng
+ncc	nhà cung cấp

@@ -1,0 +1,80 @@
+# Luật gợi ý vai trò cột. Xét từ trên xuống, luật đầu tiên khớp được dùng.
+# Tên cột được tách từ (bỏ ký tự phân cách, tách CamelCase), ghép cụm từ theo column_compounds.txt.
+#   role : mã vai trò; "-" nghĩa là nhận ra nhưng KHÔNG ghi gợi ý (cột không quan trọng hoặc mơ hồ)
+#   kind : kiểu giá trị bắt buộc: date | number | text | any  (sai kiểu thì bỏ gợi ý)
+#   label: lời gợi ý ghi vào mô tả bảng cho LLM
+#   heads: từ đầu tiên phải thuộc tập này ("*" = bất kỳ)
+#   any  : phải chứa ít nhất một từ trong tập (để trống = không đòi hỏi)
+#   none : không được chứa từ nào trong tập
+# Từ viết có dấu. Tên cột có dấu chỉ so với dạng có dấu (để "hàng", "hãng", "hạng" không lẫn
+# nhau); tên cột viết không dấu thì so với dạng đã bỏ dấu của luật.
+# role	kind	label	heads	any	none
+# --- mã / số chứng từ ---
+import_id	text	mã phiếu nhập hàng	mã,số,id	phiếunhập,nhập
+receipt_id	text	mã phiếu thu tiền	mã,số	phiếuthu
+return_id	text	mã phiếu trả hàng	mã,số	phiếutrả
+lot_id	text	mã lô hàng	mã,số	lô
+-	any		mã,số	hoáđơnđiệntử,thanhtoán
+customer_code	text	mã khách hàng (mỗi mã là một khách)	mã,số,id	kháchhàng,khách,kh
+staff_code	text	mã nhân viên	mã	nhânviên,nv
+supplier_code	text	mã nhà cung cấp	mã	nhàcungcấp,ncc
+product_code	text	mã hàng (nối sang bảng danh mục hàng)	mã,id	hàng,hànghoá,sảnphẩm,sp,món,mặthàng,sku,hh,barcode,vạch
+order_id	text	mã đơn / hoá đơn (nối các bảng của cùng một đơn)	mã,số,id	hoáđơn,hđ,đơnhàng,đơn,bill,chứngtừ,gd,giaodịch,phiếu,order
+order_id	text	mã đơn / hoá đơn (nối các bảng của cùng một đơn)	bill,hđ,order
+# --- số lượng ---
+qty_returned	number	số lượng trả lại	sốlượng,sl,slg,sluong	trả
+qty_imported	number	số lượng nhập	sốlượng,sl,slg,sluong	nhập
+qty_delivered	number	số lượng đã giao	sốlượng,sl,slg,sluong	giao,giaohàng,thực
+qty_base	number	số lượng đã quy về đơn vị cơ bản (dùng cho "bán chạy")	sốlượng,sl,slg,sluong	quyđổi,cơbản,lẻ,quy
+qty	number	số lượng theo đơn vị ghi trên dòng	sốlượng,sl,slg,sluong
+# --- giá ---
+cost_price	number	giá vốn (không phải giá bán)	giávốn
+cost_price	number	giá vốn (không phải giá bán)	giá,đơngiá	vốn
+import_price	number	giá nhập	giá,đơngiá	nhập
+price_old	number	giá cũ (trước lần đổi giá)	giá	cũ
+price_new	number	giá mới (sau lần đổi giá)	giá	mới
+list_price	number	giá niêm yết	giá	niêmyết
+unit_price	number	đơn giá bán	giá,đơngiá,đg,dg		thu,hiện
+# --- tiền ---
+points	number	điểm tích luỹ (không phải tiền)	*	điểm
+discount	number	tiền giảm giá / chiết khấu	*	giảm,chiếtkhấu,ck,khuyếnmãi,bớt	trước,sau
+refund	number	tiền hoàn trả cho khách	*	hoàn
+debt	number	tiền còn nợ	*	nợ,cònlại,chưatrả,phảithu
+paid_amount	number	số tiền khách đã trả	khách,kháchhàng,*	đãtrả
+paid_amount	number	số tiền khách đã trả	khách,kháchhàng	trả
+receipt_amount	number	số tiền thu (sổ quỹ / phiếu thu)	tiền,sốtiền,giátrị	thu
+-	any		tiền	chi,mặt
+import_amount	number	tiền nhập hàng	tổng,tổngtiền,tiền,thànhtiền,giátrị	nhập
+order_total	number	tổng tiền đơn (số khách phải trả)	tổng,tổngtiền,tiền	thanhtoán,sau,bill,đơn,phiếu
+order_subtotal	number	tiền hàng của đơn (tổng các dòng, trước giảm giá trên đơn)	tổngtiền,tiền,tổng	hàng
+line_amount	number	thành tiền của dòng hàng	thànhtiền,trịgiá,ttiền,tiền,tổngtiền,tổng,giátrị
+# --- ngày ---
+-	any		ngày,thờigian	khaitrương,nhậnviệc,thôiviệc,vàolàm,đăngký,góp,chi,tt
+birth_date	date	ngày sinh	ngày,ngàygiờ	sinh
+created_at	date	thời điểm tạo bản ghi (không phải ngày bán)	ngày,thờigian,giờ	tạo
+expiry_date	date	hạn sử dụng của lô	hạn,ngày	sửdụng
+expiry_date	date	hạn sử dụng của lô	hsd
+due_date	date	hạn thanh toán / hạn trả nợ	hạn
+due_date	date	hạn thanh toán / hạn trả nợ	ngày	phảitrả
+effective_date	date	ngày áp dụng giá	*	ápdụng
+import_date	date	ngày nhập hàng	ngày,thờigian	nhập,nhậpkho
+delivery_date	date	ngày giao hàng	ngày,thờigian	giao,giaohàng,chở
+return_date	date	ngày trả hàng	ngày,ngàygiờ	trả
+receipt_date	date	ngày thu tiền	ngày,ngàygiờ,thờigian	thu
+event_date	date	ngày phát sinh của bản ghi trong bảng này	ngày,thờigian,giờ,ngàygiờ,date
+# --- trạng thái ---
+-	any		trạngthái,tìnhtrạng	kh,ncc,hđđt,hddt
+status	text	trạng thái (phân loại bằng order_status)	trạngthái,tìnhtrạng,status,xửlý,kếtquả
+# --- khách ---
+customer_group	text	nhóm / loại khách	loại,nhóm,kiểu,đốitượng,loạihình	khách,kháchhàng,kh
+customer	text	tên khách hàng	*	kháchhàng,khách,kh,bênmua,đốitác	ghichú,mã,điểm
+# --- hàng ---
+category	text	nhóm / loại hàng	loại,nhóm,phânloại,danhmục	hàng,hànghoá,sảnphẩm,sp,món,mặthàng
+product	text	tên hàng	tên,họtên	hàng,hànghoá,sảnphẩm,sp,món,mặthàng
+product	text	tên hàng	hàng,hànghoá,sảnphẩm,mặthàng,món,item,product,nộidung,chitiếthàng
+active_ingredient	text	hoạt chất của thuốc	hoạtchất,thànhphần
+prescription	any	thuốc kê đơn (1 = kê đơn)	*	kêđơn
+# --- khác ---
+staff	text	nhân viên bán	nhânviên,nv,ngườibán
+payment	text	hình thức thanh toán	thanhtoán,phươngthức,hìnhthức,httt
+unit	text	đơn vị tính	đơnvị,đvt,đv,unit
