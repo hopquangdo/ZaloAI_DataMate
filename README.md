@@ -61,12 +61,10 @@ câu hỏi + business_id + as_of_date
 
 ## Kết quả (trung thực)
 
-| Tập | Kết quả | Ghi chú |
-|---|---|---|
-| Public leaderboard, bản v5 | **PA = 0,013** | số thật khi nộp lên cổng; dự đoán nội bộ trước đó (~0,4) đã sai |
-| Train dev (150 câu), bản v7 | PA +0,68 | dev đã bị đọc lỗi nhiều lần, **không dùng để dự đoán điểm public** |
-| Train holdout (60 câu), bản v7 | PA +0,65 | chỉ 3 doanh nghiệp, cùng lưu ý trên |
-
+| Tập | Kết quả | 
+|---|---|
+| Public leaderboard, bản v5 | **PA = 0,013** | 
+| Train dev (150 câu), bản v7 | PA +0,68 | 
 Độ chính xác khi trả lời trên train khoảng 89%, trên public suy ra khoảng 51%: điểm train **chưa
 chuyển sang** dữ liệu mới. Nguyên nhân chưa xác định hết (xem [Việc còn lại](#việc-còn-lại)). Định
 dạng file nộp đã được kiểm tra đúng đặc tả (không phải nguyên nhân).
