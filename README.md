@@ -64,7 +64,8 @@ câu hỏi + business_id + as_of_date
 | Tập | Kết quả | 
 |---|---|
 | Public leaderboard, bản v5 | **PA = 0,013** | 
-| Train dev (150 câu), bản v7 | PA +0,68 | 
+| Train dev (150 câu), bản v7 | PA +0,68 
+ 
 Độ chính xác khi trả lời trên train khoảng 89%, trên public suy ra khoảng 51%: điểm train **chưa
 chuyển sang** dữ liệu mới. Nguyên nhân chưa xác định hết (xem [Việc còn lại](#việc-còn-lại)). Định
 dạng file nộp đã được kiểm tra đúng đặc tả (không phải nguyên nhân).
