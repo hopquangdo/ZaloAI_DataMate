@@ -19,9 +19,12 @@ from pathlib import Path
 import pandas as pd
 
 from datamate.core.text import fold
+from datamate.modules.domain.business_rules import classify_status
 
 LEXICON_DIR = Path(__file__).resolve().parents[3] / "assets" / "lexicon"
 _NO_HINT = "-"
+# Khoá trong ``DataFrame.attrs``: vai trò do LLM đề xuất và đã được kiểm chứng (xem propose.py).
+ROLES_KEY = "column_roles_override"
 
 # Hai kiểu bỏ dấu thanh ("hoá" / "hóa", "thuỷ" / "thủy") đưa về một dạng.
 _OLD_STYLE = {
@@ -182,6 +185,68 @@ def _amount_matches(table: pd.DataFrame, qty: str, price: str, amount: str) -> b
     return bool(close.mean() >= 0.6)
 
 
+_MAX_STATUS_VALUES = 15
+
+
+def _looks_like_status(series: pd.Series) -> bool:
+    """Cột chữ ít giá trị mà phần lớn dòng là trạng thái đơn quen (hoàn thành, huỷ, trả…)."""
+    if pd.api.types.is_numeric_dtype(series) or pd.api.types.is_datetime64_any_dtype(series):
+        return False
+    counts = series.dropna().astype(str).value_counts()
+    if counts.empty or len(counts) > _MAX_STATUS_VALUES:
+        return False
+    labels = {value: classify_status(value) for value in counts.index}
+    known = sum(n for value, n in counts.items() if labels[value] != "khac")
+    return known / counts.sum() >= 0.8 and len(set(labels.values()) - {"khac"}) >= 1 and (
+        "hoan_thanh" in labels.values()
+    )
+
+
+def _product_by_values(table: pd.DataFrame, taken: set[str]) -> str | None:
+    """Cột chữ chưa có vai trò, có nhiều tên khác nhau nhưng mỗi tên lặp lại nhiều lần."""
+    best: tuple[int, str] | None = None
+    for column in table.columns:
+        series = table[column]
+        if str(column) in taken or str(column).startswith("_") or not _kind_ok("text", series):
+            continue
+        values = series.dropna().astype(str)
+        distinct = values.nunique()
+        if len(values) < 0.9 * len(table) or not _MAX_STATUS_VALUES < distinct <= len(values) / 5:
+            continue
+        # Ít tên khác nhau nhất: danh mục hàng thường nhỏ hơn danh sách khách / ghi chú.
+        if best is None or distinct < best[0]:
+            best = (distinct, str(column))
+    return best[1] if best else None
+
+
+def _infer_by_values(table: pd.DataFrame, hints: dict[str, ColumnRole]) -> dict[str, ColumnRole]:
+    """Vai trò suy từ GIÁ TRỊ khi tên cột không có trong từ điển (doanh nghiệp mới, tên lạ)."""
+    found: dict[str, ColumnRole] = {}
+    roles = {hint.role for hint in hints.values()}
+    # Bảng bán hàng (có mã đơn, hoặc sổ bán có ngày + tiền) nhưng tên cột trạng thái lạ.
+    is_sales = "order_id" in roles or {"event_date", "line_amount"} <= roles
+    if is_sales and "status" not in roles:
+        for column in table.columns:
+            if column not in hints and _looks_like_status(table[column]):
+                found[str(column)] = ColumnRole("status", "trạng thái đơn (suy từ giá trị cột)")
+                break
+    by_role = {hint.role: column for column, hint in hints.items()}
+    if {"qty", "line_amount"} <= by_role.keys() and "product" not in roles:
+        product = _product_by_values(table, {*hints, *found})
+        if product is not None:
+            found[product] = ColumnRole("product", "tên hàng (suy: cột chữ nhiều giá trị lặp lại)")
+    if {"qty", "unit_price"} <= by_role.keys() and "line_amount" not in roles:
+        for column in table.columns:
+            if column in hints or not pd.api.types.is_numeric_dtype(table[column]):
+                continue
+            if _amount_matches(table, by_role["qty"], by_role["unit_price"], str(column)):
+                found[str(column)] = ColumnRole(
+                    "line_amount", "thành tiền của dòng hàng (suy: ≈ số lượng × đơn giá)"
+                )
+                break
+    return found
+
+
 def column_roles(table: pd.DataFrame) -> dict[str, ColumnRole]:
     """Gợi ý vai trò cho các cột của một bảng (chỉ những cột chắc chắn)."""
     found: dict[str, RoleRule] = {}
@@ -202,6 +267,10 @@ def column_roles(table: pd.DataFrame) -> dict[str, ColumnRole]:
             role, label = _IMPORT_CONTEXT.get(role, (role, label))
         hints[column] = ColumnRole(role, label)
 
+    for column, role in table.attrs.get(ROLES_KEY, {}).items():
+        if column in table.columns:
+            hints[column] = ColumnRole(role, f"{role} (LLM nhận diện, đã kiểm chứng giá trị)")
+    hints.update(_infer_by_values(table, hints))
     by_role = {hint.role: column for column, hint in hints.items()}
     if {"qty", "unit_price", "line_amount"} <= by_role.keys():
         amount = by_role["line_amount"]

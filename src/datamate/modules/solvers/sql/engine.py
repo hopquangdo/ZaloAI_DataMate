@@ -17,6 +17,7 @@ import duckdb
 import pandas as pd
 
 from datamate.infrastructure.llm_loop import AttemptError
+from datamate.modules.data.canonical.hints import missing_column_hint, sql_shape_hint
 from datamate.modules.domain.answer import Answer, AnswerType, FormatError, coerce_answer
 from datamate.modules.solvers.sql.functions import register_functions
 
@@ -70,7 +71,7 @@ def _value(answer_type: str, frame: pd.DataFrame) -> Any:
         if frame.shape != (1, 1):
             raise AttemptError(
                 f"Kiểu {answer_type} cần đúng 1 dòng × 1 cột, truy vấn trả {frame.shape[0]} dòng × "
-                f"{frame.shape[1]} cột."
+                f"{frame.shape[1]} cột." + sql_shape_hint(frame.shape[0], frame.shape[1])
             )
         return frame.iat[0, 0]
     if answer_type == "list":
@@ -131,10 +132,18 @@ class SqlEngine:
         except duckdb.InterruptException as error:
             raise AttemptError(f"Truy vấn chạy quá {self._timeout:.0f} giây.") from error
         except duckdb.Error as error:
-            raise AttemptError(f"{type(error).__name__}: {str(error)[:600]}") from error
+            raise AttemptError(self._explain(error)) from error
         finally:
             timer.cancel()
             connection.close()
+
+    def _explain(self, error: duckdb.Error) -> str:
+        """Thông báo lỗi DuckDB kèm gợi ý: cột bị gọi nhầm có ở bảng nào."""
+        message = f"{type(error).__name__}: {str(error)[:600]}"
+        match = re.search(r'column "([^"]+)" not found', str(error), re.I)
+        if match is None:
+            return message
+        return message + missing_column_hint(match.group(1), self._tables_factory())
 
     def describe(self, candidate: Answer) -> dict[str, Any]:
         return candidate.to_json()

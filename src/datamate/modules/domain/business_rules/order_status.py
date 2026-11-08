@@ -9,11 +9,14 @@ from datamate.core.text import fold
 # Thứ tự quan trọng: "huỷ" và "trả hàng" xét trước, "hoàn thành" xét sau
 # (vì "hoàn hàng" ≠ "hoàn thành").
 _STATUS_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("khac", ("khong giao duoc",)),
-    ("huy", ("huy", "cancel")),
-    ("tra_hang", ("hoan hang", "tra hang", "tra lai", "hoan tra", "doi tra", "hang tra ve")),
-    ("dang_giao", ("dang giao", "dang gui", "dang van chuyen", "dang xu ly")),
-    ("hoan_thanh", ("hoan thanh", "da giao", "da lay", "da xong", "xong", "thanh cong", "ok")),
+    ("huy", ("huy", "cancel", "cancelled", "canceled", "khong giao duoc", "giao khong thanh",
+             "that bai", "failed")),
+    ("tra_hang", ("hoan hang", "tra hang", "tra lai", "hoan tra", "doi tra", "hang tra ve",
+                  "return", "returned", "refund", "refunded")),
+    ("dang_giao", ("dang giao", "dang gui", "dang van chuyen", "dang xu ly", "cho giao",
+                   "shipping", "shipped", "delivering", "pending")),
+    ("hoan_thanh", ("hoan thanh", "da giao", "da lay", "da xong", "xong", "thanh cong", "ok",
+                    "completed", "complete", "done", "delivered", "success")),
 )
 
 

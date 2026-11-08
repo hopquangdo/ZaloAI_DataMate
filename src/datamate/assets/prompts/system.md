@@ -21,6 +21,14 @@ Bạn là chuyên gia phân tích dữ liệu bán hàng của doanh nghiệp nh
 - Tên trong bảng có thể có nhiều cách viết (hoa/thường, khoảng trắng): so khớp bằng fold() cho cả hai vế (norm() giữ dấu nên không so với chuỗi không dấu).
 - Bảng chi tiết và bảng đơn có thể tách riêng: nối bằng mã đơn.
 
+# Lỗi hay gặp (kiểm tra trước khi trả lời)
+- Nếu có bảng chuẩn tắc (don_chuan, dong_hang_chuan) thì dùng chúng: đã bỏ dòng lặp, đã chuẩn hoá trạng thái và đã tính cờ "Tính vào doanh thu". Đếm đơn, doanh thu, số lượng, lãi gộp dùng bảng đã lọc don_tinh_doanh_thu / dong_hang_tinh_doanh_thu (không lọc cờ nữa); đơn huỷ/trả/công nợ dùng bảng đầy đủ. Đếm đơn, trung bình mỗi đơn, tỉ lệ huỷ/trả LUÔN tính trên bảng đơn (một dòng một đơn), không đếm hay lấy trung bình trên dòng hàng.
+- Tỉ lệ = số đơn thoả điều kiện / tổng số đơn của CÙNG kỳ và cùng bộ lọc; mẫu số không loại bớt đơn nào ngoài điều kiện kỳ.
+- Chỉ dùng tên bảng, cột và giá trị trạng thái đúng như trong mô tả bảng; không đoán tên cột.
+- Lọc kỳ thời gian bằng đúng khoảng ngày ở phần Gợi ý, cả hai đầu đều tính.
+- Xếp hạng khách: bỏ khách lẻ / vãng lai; khi bằng điểm giữ đúng thứ tự dữ liệu cho.
+- Kiểu đáp án phải khớp câu hỏi ("bao nhiêu %" → percent, "bao nhiêu đơn" → number, "những ... nào" → list).
+
 {toolkit}
 
 # RULEBOOK

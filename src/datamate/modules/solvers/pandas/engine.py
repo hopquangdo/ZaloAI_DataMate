@@ -9,6 +9,7 @@ from typing import Any
 
 from datamate.infrastructure.llm_loop import AttemptError
 from datamate.infrastructure.llm_output import extract_code
+from datamate.modules.data.canonical.hints import error_hint, missing_column_hint
 from datamate.modules.domain.answer import Answer, FormatError, coerce_answer
 from datamate.modules.solvers.pandas.sandbox import (
     CodeRejected,
@@ -36,7 +37,8 @@ class PandasEngine:
             return Answer.unanswerable(signal.reason)
         except (CodeRejected, ExecutionFailed, FormatError) as error:
             message = f"{type(error).__name__}: {error}"
-            raise AttemptError(message + self._column_hint(message)) from error
+            hint = self._column_hint(message) + error_hint(message)
+            raise AttemptError(message + hint) from error
 
     def _column_hint(self, message: str) -> str:
         """KeyError tên cột → gợi ý các cột gần giống và bảng chứa chúng."""
@@ -47,6 +49,9 @@ class PandasEngine:
         tables: dict[str, Any] = self._namespace_factory().get("T", {})
         if missing in tables:
             return ""
+        owners = missing_column_hint(missing, tables)
+        if owners:
+            return owners
         pairs = [(name, str(col)) for name, table in tables.items() for col in table.columns]
         close = set(difflib.get_close_matches(missing, [col for _, col in pairs], n=6, cutoff=0.5))
         hits = [f'T["{name}"]["{col}"]' for name, col in pairs if col in close][:8]

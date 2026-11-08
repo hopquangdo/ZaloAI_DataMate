@@ -14,6 +14,7 @@ from datamate.modules.understanding.normalize.telex import decode_word
 
 LEXICON = Path(__file__).resolve().parents[3] / "assets" / "lexicon" / "abbreviations.tsv"
 _TOKEN = re.compile(r"\w+|\W+", re.UNICODE)
+_MONTH_ABBR = re.compile(r"th\d{1,2}", re.IGNORECASE)
 
 
 @functools.cache
@@ -33,7 +34,9 @@ def normalize_question(text: str) -> str:
     table = abbreviations()
     out: list[str] = []
     for token in _TOKEN.findall(" ".join(text.split())):
-        if token.isalpha() and token.lower() in table:
+        if _MONTH_ABBR.fullmatch(token):  # "th8" = "tháng 8"
+            out.append(f"tháng {token[2:]}")
+        elif token.isalpha() and token.lower() in table:
             out.append(table[token.lower()])
         elif token.isascii() and token.isalpha():
             out.append(decode_word(token))

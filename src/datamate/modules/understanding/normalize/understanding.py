@@ -36,8 +36,9 @@ class Understanding:
 
 def understand(question: str, today: date, entities: EntityIndex) -> Understanding:
     """Phân tích một câu hỏi trên dữ liệu của doanh nghiệp."""
+    normalized = normalize_question(question)
     return Understanding(
-        normalized=normalize_question(question),
-        time=time_hints(question, today),
+        normalized=normalized,
+        time=time_hints(normalized, today),
         entities=entities.find(question),
     )

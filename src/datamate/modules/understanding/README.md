@@ -40,3 +40,7 @@ thường nhưng sửa sai các viết tắt nghiệp vụ (`dthu` → "dự thi
 đúng ("giá nhập" → "gia nhập"). Không xử lý được Telex. Xem lịch sử phân tích trước khi thử lại.
 
 Test: `tests/modules/understanding/`.
+
+## examples/ — ví dụ mẫu (few-shot)
+
+Chọn tối đa 3 ví dụ tổng quát (`assets/examples/*.md`) hợp câu hỏi theo biểu thức `triggers:`, mỗi ví dụ có bản pandas và bản SQL. `app/pipeline.py` chèn bản đúng ngôn ngữ của bộ giải vào cuối prompt người dùng. Ví dụ chỉ minh hoạ cấu trúc phép tính (đếm theo mã đơn khác nhau, tỉ lệ huỷ, xếp hạng...), không dùng tên cột hay số của doanh nghiệp nào. Thêm ví dụ mới = thêm một file `.md`.

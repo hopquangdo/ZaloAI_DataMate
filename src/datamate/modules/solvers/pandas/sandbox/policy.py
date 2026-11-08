@@ -11,6 +11,11 @@ import ast
 
 from datamate.modules.solvers.pandas.sandbox.errors import CodeRejected
 
+# Module chuẩn vô hại, đã nằm sẵn trong namespace hoặc cần cho datetime/pandas khi chạy.
+SAFE_IMPORT_ROOTS = frozenset(
+    {"pandas", "numpy", "datetime", "math", "dateutil", "pytz", "decimal", "re", "calendar",
+     "statistics", "collections", "itertools", "functools", "time", "_strptime", "locale"}
+)
 _FORBIDDEN_CALLS = {
     "open", "exec", "eval", "compile", "__import__", "globals", "locals", "vars",
     "getattr", "setattr", "delattr", "input", "breakpoint", "exit", "quit", "help",
@@ -36,16 +41,29 @@ def check_code(code: str) -> None:
     except SyntaxError as error:
         raise CodeRejected(f"SyntaxError dòng {error.lineno}: {error.msg}") from error
     for node in ast.walk(tree):
-        if isinstance(node, (ast.Import, ast.ImportFrom)):
-            raise CodeRejected("không được import; dùng pd, np, T, P… có sẵn")
+        if isinstance(node, ast.Import) and any(
+            a.name.partition(".")[0] not in SAFE_IMPORT_ROOTS for a in node.names
+        ):
+            raise CodeRejected("chỉ được import module chuẩn an toàn; dùng pd, np, T, P… có sẵn")
+        if isinstance(node, ast.ImportFrom) and (
+            (node.module or "").partition(".")[0] not in SAFE_IMPORT_ROOTS
+        ):
+            raise CodeRejected("chỉ được import module chuẩn an toàn; dùng pd, np, T, P… có sẵn")
         if isinstance(node, ast.Attribute) and _is_forbidden_attribute(node.attr):
             raise CodeRejected(f"không được dùng thuộc tính .{node.attr}")
         if isinstance(node, ast.Name) and (node.id in _FORBIDDEN_CALLS or node.id.startswith("__")):
             raise CodeRejected(f"không được dùng {node.id}")
-    if not any(
+    assigns = any(
         isinstance(node, ast.Assign) and any(_assigns_answer(t) for t in node.targets)
         for node in ast.walk(tree)
-    ):
+    )
+    gives_up = any(  # unanswerable("lý do") là cách nói "dữ liệu không đủ", không cần biến answer
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "unanswerable"
+        for node in ast.walk(tree)
+    )
+    if not (assigns or gives_up):
         raise CodeRejected("code phải gán biến `answer`")
 
 

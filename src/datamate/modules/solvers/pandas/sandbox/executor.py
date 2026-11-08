@@ -15,13 +15,16 @@ from collections.abc import Mapping
 from typing import Any
 
 from datamate.modules.solvers.pandas.sandbox.errors import ExecutionFailed, Unanswerable
-from datamate.modules.solvers.pandas.sandbox.policy import check_code
+from datamate.modules.solvers.pandas.sandbox.policy import SAFE_IMPORT_ROOTS, check_code
 
 DEFAULT_TIMEOUT_SECONDS = 30.0
 
 _FILENAME = "<answer>"
 _MAX_TRACEBACK_CHARS = 2500
-_IMPORTABLE_ROOTS = {"pandas", "numpy", "datetime", "math", "dateutil", "pytz", "decimal"}
+_IMPORTABLE_ROOTS = SAFE_IMPORT_ROOTS
+# datetime.strptime, pandas… nạp các module này lúc chạy; nạp sẵn để hook chỉ cần trả module đã có.
+for _name in ("_strptime", "calendar", "locale", "re", "statistics", "collections", "itertools"):
+    __import__(_name)
 _SAFE_BUILTIN_NAMES = (
     "abs", "all", "any", "bool", "dict", "divmod", "enumerate", "filter", "float",
     "frozenset", "int", "isinstance", "len", "list", "map", "max", "min", "print",

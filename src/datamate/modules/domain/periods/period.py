@@ -13,6 +13,7 @@ import pandas as pd
 
 __all__ = [
     "Period",
+    "between",
     "day",
     "last_month_same_days",
     "last_n_days",
@@ -24,6 +25,7 @@ __all__ = [
     "this_month",
     "this_week",
     "until",
+    "year",
     "year_of_month",
     "year_to_date",
 ]  # đây cũng là toàn bộ những gì code LLM gọi được qua `P` (xem assets/prompts/toolkit.md)
@@ -55,6 +57,16 @@ class Period:
 def day(d: date) -> Period:
     """Kỳ một ngày."""
     return Period(d, d)
+
+
+def year(year_: int) -> Period:
+    """Cả năm dương lịch."""
+    return Period(date(year_, 1, 1), date(year_, 12, 31))
+
+
+def between(start: date, end: date) -> Period:
+    """Khoảng ngày bất kỳ từ ``start`` đến hết ``end`` (cả hai đầu đều tính)."""
+    return Period(start, end)
 
 
 def month(year: int, month_: int) -> Period:

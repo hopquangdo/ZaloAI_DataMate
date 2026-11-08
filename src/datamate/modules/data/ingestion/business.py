@@ -15,7 +15,11 @@ from datamate.modules.data.ingestion.readers import Part, read_parts, read_sqlit
 from datamate.modules.data.ingestion.values import year_in
 
 SOURCE_COLUMN = "_nguon"  # file/sheet gốc của dòng, giúp suy ra năm, tháng
-_PART_SUFFIX = re.compile(r"[_\- ]+(\d{1,2}|20\d{2})$")
+# Phần đánh số kỳ ở tên file/sheet ("_10", "_T10", "_Thang01", "_Q2", "_2025"): bỏ đi để các
+# tháng của cùng một sổ gộp thành MỘT bảng (cùng bộ cột).
+_PART_SUFFIX = re.compile(
+    r"[_\- ]*(?:t|th|thang|thg|q|quy|nam)?[_\- ]*\d+(?=[_\- ]|$)", re.IGNORECASE
+)
 
 
 @dataclass(frozen=True)
@@ -29,7 +33,8 @@ class Business:
 
 
 def _group_key(part: Part) -> tuple[str, tuple[str, ...]]:
-    return _PART_SUFFIX.sub("", part.base_name), tuple(sorted(part.frame.columns))
+    base = _PART_SUFFIX.sub("", part.base_name).strip("_- ") or part.base_name
+    return base, tuple(sorted(part.frame.columns))
 
 
 def _merge_parts(parts: list[Part]) -> dict[str, pd.DataFrame]:

@@ -14,7 +14,7 @@ def _outcome(error: str | None = None) -> Outcome:
         {"attempts": 2, "tokens": 30, "trace": [{"attempt": 1, "error": "lỗi"}, {"attempt": 2}]},
         {"attempts": 1, "tokens": 12, "trace": [{"attempt": 1}]},
     )
-    return Outcome(SEVEN, (SEVEN, SEVEN), states, error)  # type: ignore[arg-type]
+    return Outcome(SEVEN, (SEVEN, SEVEN), states, error, ("pandas", "sql"))  # type: ignore[arg-type]
 
 
 def test_log_record_keeps_the_documented_keys_in_order() -> None:
@@ -26,6 +26,7 @@ def test_log_record_keeps_the_documented_keys_in_order() -> None:
         "as_of_date",
         "answer",
         "samples",
+        "sources",
         "attempts",
         "tokens",
         "seconds",
@@ -37,6 +38,7 @@ def test_log_record_keeps_the_documented_keys_in_order() -> None:
     assert record["answer"] == {"type": "number", "answer": 7}
     assert (record["attempts"], record["tokens"], record["seconds"]) == (3, 42, 1.23)
     assert [step["sample"] for step in record["trace"]] == [0, 0, 1]
+    assert record["sources"] == ["pandas", "sql"]
 
 
 def test_api_error_is_labelled_and_everything_stays_plain_json() -> None:

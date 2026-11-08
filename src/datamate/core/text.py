@@ -24,6 +24,11 @@ def fold(text: str) -> str:
     return "".join(c for c in decomposed if unicodedata.category(c) != "Mn")
 
 
+def name_key(text: str) -> str:
+    """Khoá so khớp TÊN: bỏ dấu, chữ thường, bỏ dấu câu / ngoặc ("Trà sữa (M)" ~ "tra sua m")."""
+    return normalize_text(fold(text)) if isinstance(text, str) else ""
+
+
 def shorten(text: str, limit: int) -> str:
     """Cắt chuỗi dài để không làm phình prompt (context chỉ 16k)."""
     return text if len(text) <= limit else text[: limit - 1] + "…"

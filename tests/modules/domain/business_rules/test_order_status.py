@@ -29,7 +29,7 @@ def test_order_status_classification() -> None:
         "hoan_thanh",
         "hoan_thanh",
         "huy",
-        "khac",
+        "huy",  # đáp án train tính "không giao được" là huỷ
         "khac",
     ]
     assert order_status(pd.Series(raw)).tolist() == expected

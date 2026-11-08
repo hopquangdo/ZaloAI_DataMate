@@ -5,7 +5,7 @@ generate → execute (sandbox) → rule check → [llm review] → finalize
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import Any
 
 from datamate.infrastructure.llm import LLMClient
@@ -17,10 +17,13 @@ from datamate.modules.solvers.pandas.settings import AgentSettings
 
 
 def build_graph(
-    llm: LLMClient, namespace_factory: Callable[[], dict[str, Any]], settings: AgentSettings
+    llm: LLMClient,
+    namespace_factory: Callable[[], dict[str, Any]],
+    settings: AgentSettings,
+    extra_checks: Sequence[Check] = (),
 ) -> Any:
     """Dựng vòng lặp pandas; LLM review chỉ thêm khi bật trong settings."""
-    checks: list[Check] = [RuleCheck()]
+    checks: list[Check] = [RuleCheck(), *extra_checks]
     if settings.llm_review:
         checks.append(LlmReviewCheck(llm))
     return build_loop(

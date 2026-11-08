@@ -12,6 +12,7 @@ kết. Dùng ``--strict`` khi phát triển để dừng ngay ở lỗi đầu t
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import random
 import time
@@ -21,9 +22,10 @@ from collections.abc import Collection
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from datamate.app.pipeline import Pipeline, Result
+from datamate.app.pipeline import SOLVER_ORDER, Pipeline, Result
 from datamate.app.question import Question
 from datamate.app.run_log import RunLog
+from datamate.app.run_manifest import build_manifest, finish_manifest
 from datamate.infrastructure.config import LLMSettings
 from datamate.infrastructure.jsonl import JsonlWriter, read_jsonl
 from datamate.infrastructure.llm import LLMClient
@@ -90,6 +92,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--business", nargs="*", default=[])
     parser.add_argument("--ids", nargs="*", default=[])
     parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument(
+        "--solvers",
+        nargs="+",
+        choices=SOLVER_ORDER,
+        default=list(SOLVER_ORDER),
+        help="bộ giải dùng cho các lần sinh, xen kẽ theo thứ tự (vd. --solvers sql)",
+    )
     parser.add_argument("--resume", action="store_true", help="bỏ qua câu đã có trong --out")
     parser.add_argument("--strict", action="store_true", help="dừng ngay khi có lỗi chương trình")
     return parser.parse_args()
@@ -115,6 +124,7 @@ def _build_pipeline(args: argparse.Namespace) -> Pipeline:
         LLMClient(LLMSettings.from_env()),
         AgentSettings.from_env(),
         ConsensusSettings.from_env(),
+        solvers=tuple(args.solvers),
     )
 
 
@@ -177,7 +187,21 @@ def main() -> None:
         for path in (args.out, args.log):
             path.unlink(missing_ok=True)
     questions = _load_questions(args)
+    manifest = build_manifest(
+        args=vars(args),
+        llm=LLMSettings.from_env(),
+        agent=AgentSettings.from_env(),
+        consensus=ConsensusSettings.from_env(),
+        questions=len(questions),
+    )
     errors = _run(_build_pipeline(args), questions, args)
+    done = len(questions) - errors["llm_dead"]
+    meta_path = args.log.with_name(args.log.stem.removesuffix("_log") + "_meta.json")
+    meta_path.write_text(
+        json.dumps(finish_manifest(manifest, errors, done), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    log.info("Cấu hình lượt chạy: %s", meta_path)
     _report(errors, args)
 
 

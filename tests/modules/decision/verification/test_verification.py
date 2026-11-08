@@ -51,3 +51,11 @@ def test_name_must_exist_in_data() -> None:
 def test_numbers_pass_and_absurd_percent_fails() -> None:
     assert check_answer(Answer(AnswerType.NUMBER, 12345), NAMES) is None
     assert check_answer(Answer(AnswerType.PERCENT, 1e9), NAMES) is not None
+
+
+def test_walk_in_customer_is_never_an_answer() -> None:
+    walk_in = frozenset({"khách lẻ", "nguyễn văn a"})
+    assert check_answer(Answer(AnswerType.STRING, "Khách lẻ"), walk_in) is not None
+    assert check_answer(Answer(AnswerType.LIST, ("Nguyễn Văn A", "khách vãng lai")), walk_in) is not None
+    assert check_answer(Answer(AnswerType.STRING, "Nguyễn Văn A"), walk_in) is None
+    assert check_answer(Answer(AnswerType.STRING, "lẻ"), frozenset({"lẻ"})) is None  # tên nhóm khách

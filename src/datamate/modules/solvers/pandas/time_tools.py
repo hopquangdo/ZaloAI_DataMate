@@ -65,6 +65,12 @@ class PeriodTools:
         previous = _wrap("previous_day", lambda d: period.day(d - timedelta(days=1)))
         self.previous_day = previous
         self.yesterday = previous
+        # cách gọi mà model hay viết nhầm: map về hàm thật thay vì báo lỗi
+        for alias, target in (
+            ("week", "this_week"), ("previous_week", "last_week"), ("date", "day"),
+            ("last_month", "previous_month"), ("range", "between"), ("span", "between"),
+        ):
+            setattr(self, alias, getattr(self, target))
 
     def __getattr__(self, name: str) -> Any:
         available = ", ".join(sorted(period.__all__))

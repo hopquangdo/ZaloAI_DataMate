@@ -29,6 +29,7 @@ class Outcome:
     samples: tuple[Answer, ...]
     states: tuple[LoopState, ...]
     error: str | None
+    sources: tuple[str, ...] = ()  # bộ giải sinh ra từng mẫu (cùng thứ tự với samples)
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,6 +39,7 @@ class RunLog:
     question: Question
     answer: Answer
     samples: tuple[Answer, ...] = ()
+    sources: tuple[str, ...] = ()
     attempts: int = 0
     tokens: int = 0
     seconds: float = 0.0
@@ -55,6 +57,7 @@ class RunLog:
             question=question,
             answer=answer,
             samples=outcome.samples,
+            sources=outcome.sources,
             attempts=sum(state.get("attempts", 0) for state in outcome.states),
             tokens=sum(state.get("tokens", 0) for state in outcome.states),
             seconds=round(seconds, 2),
@@ -87,6 +90,7 @@ class RunLog:
             "as_of_date": self.question.as_of_date.isoformat(),
             "answer": self.answer.to_json(),
             "samples": [sample.to_json() for sample in self.samples],
+            "sources": list(self.sources),
             "attempts": self.attempts,
             "tokens": self.tokens,
             "seconds": self.seconds,

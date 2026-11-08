@@ -76,3 +76,9 @@ def test_code_cannot_swallow_timeout() -> None:
     code = "try:\n    while True:\n        pass\nexcept Exception:\n    pass\nanswer = {}"
     with pytest.raises(ExecutionFailed, match="quá"):
         run_code(code, {}, timeout=0.3)
+
+
+def test_unanswerable_call_needs_no_answer_assignment() -> None:
+    from datamate.modules.solvers.pandas.sandbox.policy import check_code  # noqa: PLC0415
+
+    check_code('unanswerable("dữ liệu không ghi tồn kho")')

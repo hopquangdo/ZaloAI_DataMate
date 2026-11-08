@@ -9,7 +9,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from datamate.core.text import fold, normalize_text
+from datamate.core.text import name_key, normalize_text
 from datamate.modules.data.ingestion import Business
 from datamate.modules.domain.business_rules import order_status, pct, pct_change, round_money
 from datamate.modules.domain.periods import LunarCalendar
@@ -36,7 +36,7 @@ def build_namespace(business: Business, today: date, lunar: LunarCalendar) -> di
         "P": PeriodTools(),
         "lunar": LunarTools(lunar),
         "norm": normalize_text,
-        "fold": fold,
+        "fold": name_key,  # LLM gọi fold(): bỏ dấu và bỏ dấu câu, để "(M)" khớp "m"
         "order_status": order_status,
         "round_money": round_money,
         "pct": pct,

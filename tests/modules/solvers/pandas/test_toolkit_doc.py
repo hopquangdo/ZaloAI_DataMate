@@ -29,6 +29,7 @@ def test_every_namespace_name_is_documented() -> None:
 def test_p_exposes_exactly_the_documented_period_api() -> None:
     exposed = set(vars(_namespace()["P"]))
     # không lộ pd, date, dataclass… của period.py; chỉ thêm hai tên model hay tự nghĩ ra
-    assert exposed == set(period.__all__) | {"previous_day", "yesterday"}
+    aliases = {"week", "previous_week", "date", "last_month", "range", "span"}
+    assert exposed == set(period.__all__) | {"previous_day", "yesterday"} | aliases
     doc = load_prompt("toolkit")
-    assert [name for name in sorted(exposed) if f"P.{name}" not in doc] == []
+    assert [name for name in sorted(exposed - aliases) if f"P.{name}" not in doc] == []
